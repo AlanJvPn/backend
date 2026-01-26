@@ -1,96 +1,84 @@
-# Variavel Global
-
-produtos = {}
-
 # Função para adicionar produto
-
-def adicionar_produto(): 
-    nome = input("Digite o nome do produto: ").strip() 
-    if nome in produtos:
-        print("Produto já existe no estoque!") 
-        return 
-    try: 
-        quantidade = int(input("Digite a quantidade: ")) 
-        preco = float(input("Digite o preço: ")) 
-        produtos[nome] = {"quantidade": quantidade, "preço": preco} 
-        print(f"Produto '{nome}' adicionado com sucesso!") 
-    except ValueError: 
-        print("Erro: quantidade deve ser número inteiro e preço deve ser número decimal.") 
-    
-# Função para listar produtos
-
-def listar_produtos(): 
-    if not produtos: 
-        print("Estoque vazio.") 
-        return 
-    print("\n--- Lista de Produtos ---") 
-    for nome in sorted(produtos.keys(), key=lambda x: x.lower()): 
-        print(f"{nome}: Quantidade disponível - {produtos[nome]['quantidade']} | Preço - R${produtos[nome]['preço']:.2f}") 
-        print("-------------------------\n")
-    
-# Função para remover produtos
-
-def remover_produto(nome):
+def adicionar_produto(estoque, nome, quantidade, preco):
     nome = nome.strip()
-    if nome in produtos:
-        del produtos[nome]
-        return f"Produto '{nome}' removida com sucesso!"
+    if nome in estoque:
+        return f"Erro: Produto já cadastrado."
     else:
-        return "Erro: Produto não encontrada."
+        estoque[nome] = {"quantidade": quantidade, "preço": preco}
+        return f"Produto '{nome}' adicionado com sucesso!"
+
+# Função para listar produtos
+def listar_produtos(estoque):
+    if not estoque:
+        return "Nenhum produto cadastrado."
+    else:
+        resultado = ["Lista de produtos:"]
+        for nome, dados in sorted(estoque.items(), key=lambda item: item[0].lower()):
+            resultado.append(f"{nome}: Quantidade disponível - {dados['quantidade']} | Preço - R${dados['preço']:.2f}")
+        return "\n".join(resultado)
+
+# Função para remover produtos
+def remover_produto(estoque, nome):
+    nome = nome.strip()
+    if nome in estoque:
+        del estoque[nome]
+        return f"Produto '{nome}' removido com sucesso!"
+    else:
+        return "Erro: Produto não encontrado."
 
 # Função para atualizar quantidade
-
-def atualizar_quantidade(): 
-    nome = input("Digite o nome do produto: ").strip() 
-    if nome in produtos: 
-        try: 
-            nova_quantidade = int(input("Digite a nova quantidade: ")) 
-            produtos[nome]["quantidade"] = nova_quantidade 
-            print(f"Quantidade do produto '{nome}' atualizada para {nova_quantidade}.") 
-        except ValueError: 
-            print("Erro: a quantidade deve ser um número inteiro.") 
-    else: 
-            print("Erro: produto não encontrado no estoque.")
+def atualizar_quantidade(estoque, nome, nova_qtd):
+    nome = nome.strip()
+    if nome in estoque:
+        estoque[nome]["quantidade"] = nova_qtd
+        return f"Quantidade do produto '{nome}' atualizada para {nova_qtd}."
+    else:
+        return "Erro: Produto não encontrado."
 
 # Função exibir menu
-
 def exibir_menu():
     return (
-        print("\nMenu:"),
-        print("1 - Adicionar Produto"),
-        print("2 - Listar Produtos"),
-        print("3 - Remover Produto"),
-        print("4 - Atualizar Quantidade do Produto"),
-        print("5 - Sair"),
+        "\n--- Menu de Estoque ---\n"
+        "1 - Adicionar produto\n"
+        "2 - Listar produtos\n"
+        "3 - Remover produto\n"
+        "4 - Atualizar quantidade de produto\n"
+        "5 - Sair\n"
     )
 
 # Função principal
-
-def menu():
+def main():
+    estoque = {} # Dicionário para armazenar produtos
     while True:
-        print("\n--- Menu de Estoque ---") 
-        print("1 - Adicionar produto") 
-        print("2 - Listar produtos") 
-        print("3 - Remover produto") 
-        print("4 - Atualizar quantidade de produto") 
-        print("5 - Sair")
-        
+        print(exibir_menu())
+
         opcao = input("Escolha uma opção: ").strip()
 
         if opcao == "1":
-            adicionar_produto()
+            nome = input("Digite o nome do produto: ")
+            quantidade = int(input("Digite a quantidade: "))
+            preco = float(input("Digite o preço: "))
+            print(adicionar_produto(estoque, nome, quantidade, preco))
+
         elif opcao == "2":
-            listar_produtos()
+            print(listar_produtos(estoque))
+
         elif opcao == "3":
-            nome = input("Nome do produto a remover: ").strip()
-            print(remover_produto(nome))
+            nome = input("Digite o nome do produto a remover: ")
+            print(remover_produto(estoque, nome))
+
         elif opcao == "4":
-            atualizar_quantidade()
+            nome = input("Digite o nome do produto: ")
+            nova_qtd = int(input("Digite a nova quantidade: "))
+            print(atualizar_quantidade(estoque, nome, nova_qtd))
+
         elif opcao == "5":
             print("Saindo do programa...")
             break
+
         else:
             print("Opção inválida. Tente novamente.")
 
 # Executar o programa
-menu()
+if __name__ == "__main__":
+    main()
