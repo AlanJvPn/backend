@@ -5,15 +5,15 @@ class Animal:
         self.idade = idade
 
     def emitir_som(self):
-        print("O animal emitiu um som genérico.")
+        return "O animal emitiu um som genérico."
 
 class Cachorro(Animal):
     def emitir_som(self):
-        print("O cachorro latiu!")
+        return "O cachorro latiu!"
 
 class Gato(Animal):
     def emitir_som(self):
-        print("O gato miou!")
+        return "O gato miou!"
 
 def main():
     meu_cachorro = Cachorro("Dodo", 5)
