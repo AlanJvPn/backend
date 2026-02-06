@@ -1,149 +1,137 @@
-import sys
+def obter_dados_livro(titulo, autor, quantidade):
+    return f"{titulo} {autor} {quantidade}"
 
-# Dicionário de livros
-livros = {}
-emprestimos = []
-
-
-# Função exibir menu
-def exibir_menu():
-    print("\n--- Biblioteca ---")
-    print("1 - Adicionar livro")
-    print("2 - Listar livro")
-    print("3 - Remover livro")
-    print("4 - Atualizar quantidade de livros")
-    print("5 - Registrar empréstimo")
-    print("6 - Exibir histórico de empréstimos")
-    print("7 - Sair")
-
-
-# Função para adicionar produto
-def adicionar_livro():
-    titulo = input("Digite o Titulo do Livro: ")
-
+def obter_quantidade_livro(valor):
     try:
-        quantidade = int(input("Digite os Exemplares do Livro: "))
+        quantidade = int(valor)
+        if quantidade < 0:
+            return "Erro: Quantidade não pode ser negativa."
+        return quantidade
     except ValueError:
-        print("Entrada inválida. Digite um número.")
+        return "Por favor, insira um número válido para a quantidade."
 
-    autor = input("Quem é o autor desse Livro: ")
+def validar_livro_existe(livros, titulo):
+    if titulo in livros:
+        return True
+    return f"Erro: O livro '{titulo}' não foi encontrado."
 
-    if titulo not in livros:
-        livros[titulo] = {"Descrição": {"Autor": autor, "Quantidade": quantidade}}
-        return f"Livro '{titulo}' adicionado com sucesso!"
-    else:
-        return f"Erro: {titulo} já cadastrado."
+def adicionar_livro(livros, titulo, autor, quantidade):
+    if validar_livro_existe(livros, titulo) == True:
+        return "Erro: Livro já cadastrado."
+    livros[titulo] = {"autor": autor, "quantidade": quantidade}
+    return f"Livro '{titulo}' adicionado com sucesso"
 
-
-# Função para listar Livros
 def listar_livros(livros):
     if not livros:
-        print("Nenhum livro cadastrado.")
-        return
+        return "Não há livros cadastrados."
+    resultado = []
+    for titulo, dados in sorted(livros.items()):
+        resultado.append(f"Título: {titulo} | Qtd: {dados['quantidade']} | Autor: {dados['autor']}")
+    return "\n".join(resultado)
 
-    print("\n--- Lista de Livros ---")
-
-    for titulo in livros:
-        dados = livros[titulo]["Descrição"]
-        autor = dados["Autor"]
-        qtd = dados["Quantidade"]
-
-        print(f"Título: {titulo} | Autor: {autor} | Qtd: {qtd}")
-
-
-# Função para remover livros
-def remover_produto(livros, titulo):
-    titulo = input("Digite o título do livro a ser removido: ")
-    if titulo in livros:
+def remover_livro(livros, titulo):
+    if validar_livro_existe(livros, titulo) == True:
         del livros[titulo]
         return f"Livro '{titulo}' removido com sucesso!"
     else:
-        return "Erro: Livro não encontrado."
+        return f"Erro: O livro '{titulo}' não foi encontrado."
 
+def atualizar_quantidade(livros, titulo, nova_quantidade):
+    if validar_livro_existe(livros, titulo) == True:
+        livros[titulo]["quantidade"] = nova_quantidade
+        return f"Quantidade de exemplares do livro '{titulo}' atualizada para {nova_quantidade}"
+    else:
+        return f"Erro: O livro '{titulo}' não foi encontrado."
 
-# Função para atualizar quantidade
-def atualizar_quantidade(livros):
-    titulo = input("Digite o título do livro a ser atualizado: ")
+def registrar_emprestimo(livros, emprestimos, titulo, quantidade_emprestada):
+    if validar_livro_existe(livros, titulo) == True:
+        if livros[titulo].get("quantidade", 0) >= quantidade_emprestada:
+            livros[titulo]["quantidade"] -= quantidade_emprestada
+            emprestimos.append((titulo, quantidade_emprestada))
+            return f"{quantidade_emprestada} exemplares de '{titulo}' emprestados com sucesso!"
+        else:
+            return "Erro: Estoque insuficiente."
+    else:
+        return f"Erro: O livro '{titulo}' não foi encontrado."
+
+def obter_quantidade_livro_para_emprestimo(livros, titulo, valor):
     try:
-        nova_qtd = int(input("Digite a nova quantidade: "))
+        quantidade = int(valor)
+        if quantidade <= 0:
+            return "A quantidade deve ser maior que zero."
+        elif quantidade > livros.get(titulo, {}).get("quantidade", 0):
+            return "Erro: Quantidade solicitada maior que o estoque."
+        else:
+            return quantidade
     except ValueError:
-        print("Entrada inválida. Digite um número.")
-        return
+        return "Erro: Entrada inválida."
 
-    if titulo in livros:
-        livros[titulo]["Descrição"]["Quantidade"] = nova_qtd
-        return f"Quantidade do livro '{titulo}' atualizada para {nova_qtd}."
-    else:
-        return "Erro: Livro não encontrado."
+def exibir_historico_emprestimos(emprestimos):
+    if not emprestimos:
+        return "Não há histórico de empréstimos."
+    return "\n".join([f"Livro: {t} - Qtd: {q}" for t, q in emprestimos])
 
+def exibir_menu():
+    return (
+        "\n--- Biblioteca ---\n"
+        "1. Adicionar Livro\n"
+        "2. Listar Livros\n"
+        "3. Remover Livro\n"
+        "4. Atualizar Quantidade\n"
+        "5. Registrar Empréstimo\n"
+        "6. Histórico de Empréstimos\n"
+        "7. Sair"
+    )
 
-# Função Emprestimo de Livros
-def registrar_emprestimo():
-    titulo = input("Digite o Titulo do Livro: ")
+def menu():
+    livros = {}
+    emprestimos = []
 
-    if titulo not in livros:
-        return f"Erro: {titulo} não cadastrado."
-    elif livros[titulo]["Descrição"]["Quantidade"] <= 0:
-        return f"Erro: {titulo} não disponível para empréstimo."
-    else:
-        livros[titulo]["Descrição"]["Quantidade"] -= 1
+    while True:
+        print(exibir_menu())
+        opcao = input("Escolha uma opção: ")
 
-        for livro in emprestimos:
-            if livro[0] == titulo:
-                livro[1] += 1
+        if opcao == "1":
+            titulo = input("Título: ")
+            autor = input("Autor: ")
+            entrada_qtd = input("Quantidade: ")
+            quantidade = obter_quantidade_livro(entrada_qtd)
+            
+            if isinstance(quantidade, int):
+                print(adicionar_livro(livros, titulo, autor, quantidade))
+            else:
+                print(quantidade)
+            
+        elif opcao == "2":
+            print(listar_livros(livros))
+            
+        elif opcao == "3":
+            titulo = input("Título para remover: ")
+            print(remover_livro(livros, titulo))
+            
+        elif opcao == "4":
+            titulo = input("Título para atualizar: ")
+            quantidade = int(input("Nova Quantidade: "))
+            print(atualizar_quantidade(livros, titulo, quantidade))
+            
+        elif opcao == "5":
+            titulo = input("Título do livro: ")
+            entrada_qtd = input("Quantidade para empréstimo: ")
+            quantidade_valida = obter_quantidade_livro_para_emprestimo(livros, titulo, entrada_qtd)
+            
+            if isinstance(quantidade_valida, int):
+                print(registrar_emprestimo(livros, emprestimos, titulo, quantidade_valida))
+            else:
+                print(quantidade_valida)
+                
+        elif opcao == "6":
+            print(exibir_historico_emprestimos(emprestimos))
+            
+        elif opcao == "7":
+            print("Saindo do sistema...")
             break
         else:
-            emprestimos.append([titulo, 1])
+            print("Opção inválida!")
 
-        print(f"Empréstimo do livro '{titulo}' registrado com sucesso!")
-
-
-# Função Historico de Empréstimos
-def exibir_historico_emprestimos():
-    if not emprestimos:
-        return "Nenhum empréstimo registrado."
-    else:
-        print("\n--- Histórico de Empréstimos ---")
-        for item in emprestimos:
-            print(item)
-
-
-def sair():
-    print("Saindo...")
-    sys.exit()
-
-
-# Função escolha menu
-def escolha_menu():
-    try:
-        escolha = int(input("\nDigite a opção desejada: "))
-    except ValueError:
-        print("Opção inválida. Digite um número.")
-        return
-
-    if escolha == 1:
-        resultado = adicionar_livro()
-        print(resultado)
-    elif escolha == 2:
-        listar_livros(livros)
-    elif escolha == 3:
-        resultado = remover_produto(livros)
-        print(resultado)
-    elif escolha == 4:
-        resultado = atualizar_quantidade(livros)
-        print(resultado)
-    elif escolha == 5:
-        resultado = registrar_emprestimo()
-        print(resultado)
-    elif escolha == 6:
-        resultado = exibir_historico_emprestimos()
-        print(resultado)
-    elif escolha == 7:
-        sair()
-    else:
-        print("Opção ainda não implementada ou inválida.")
-
-
-while True:
-    exibir_menu()
-    escolha_menu()
+if __name__ == "__main__":
+    menu()
