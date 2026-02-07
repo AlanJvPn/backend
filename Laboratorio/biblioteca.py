@@ -16,7 +16,7 @@ def validar_livro_existe(livros, titulo):
     return f"Erro: O livro '{titulo}' não foi encontrado."
 
 def adicionar_livro(livros, titulo, autor, quantidade):
-    if validar_livro_existe(livros, titulo) == True:
+    if validar_livro_existe(livros, titulo):
         return "Erro: Livro já cadastrado."
     livros[titulo] = {"autor": autor, "quantidade": quantidade}
     return f"Livro '{titulo}' adicionado com sucesso"
@@ -30,21 +30,21 @@ def listar_livros(livros):
     return "\n".join(resultado)
 
 def remover_livro(livros, titulo):
-    if validar_livro_existe(livros, titulo) == True:
+    if validar_livro_existe(livros, titulo):
         del livros[titulo]
         return f"Livro '{titulo}' removido com sucesso!"
     else:
         return f"Erro: O livro '{titulo}' não foi encontrado."
 
 def atualizar_quantidade(livros, titulo, nova_quantidade):
-    if validar_livro_existe(livros, titulo) == True:
+    if validar_livro_existe(livros, titulo):
         livros[titulo]["quantidade"] = nova_quantidade
         return f"Quantidade de exemplares do livro '{titulo}' atualizada para {nova_quantidade}"
     else:
         return f"Erro: O livro '{titulo}' não foi encontrado."
 
 def registrar_emprestimo(livros, emprestimos, titulo, quantidade_emprestada):
-    if validar_livro_existe(livros, titulo) == True:
+    if validar_livro_existe(livros, titulo):
         if livros[titulo].get("quantidade", 0) >= quantidade_emprestada:
             livros[titulo]["quantidade"] -= quantidade_emprestada
             emprestimos.append((titulo, quantidade_emprestada))
